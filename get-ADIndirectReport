@@ -1,0 +1,15 @@
+function Get-ADIndirectReport {
+   param ($Identity)
+   # Find all direct reports
+   Get-ADUser -filter 'Manager -eq $Identity' -properties displayName,city,department,manager,extensionAttribute1,extensionAttribute8,extensionAttribute9,title,mail,proxyAddresses |
+ ForEach-Object {
+       # Output direct report
+     $_
+     # Then recursively call this function for all
+     # reports of this report
+     Get-ADIndirectReport -Identity $_
+   }
+ }
+ 
+Sample usage: 
+PS C:\Users\dtranberg> get-adindirectreport "CN=Alice Manager,OU=UserAccounts,DC=thecompany,DC=com" | select samaccountname,name,displayName,GivenName,Surname,extensionAttribute1,enabled,department,city,manager,extensionAttribute8,extensionAttribute9,title,mail,proxyAddresses | sort manager | export-csv c:\users\dtranberg\AliceManagerStaff.csv
